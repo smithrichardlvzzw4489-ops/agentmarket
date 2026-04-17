@@ -12,6 +12,8 @@
 
 ## 本地运行
 
+**Node 版本**：建议使用 **20.19+**、**22.13+** 或 **24+**（满足依赖链里 `eslint-visitor-keys` 的 `engines` 要求，可避免 `EBADENGINE` 警告；你当前的 22.2.0 会触发该警告，升级 Node 即可消除）。
+
 ```bash
 cp .env.example .env
 npm install
@@ -19,6 +21,27 @@ npx prisma db push
 npm run db:seed
 npm run dev
 ```
+
+### Windows：`npm install` 报 `EBUSY`（重命名 `@prisma/engines` 失败）
+
+多为 **文件被占用**：本项目的 `next dev` / `prisma studio`、其它终端里的 Node、杀毒/Defender 实时扫描、或资源管理器打开了 `node_modules` 下的文件夹。
+
+按顺序尝试：
+
+1. **停掉本项目相关进程**：关掉正在跑的开发服务器、Prisma Studio；在任务管理器中结束占用该目录的 `Node.js`（确认没有其它重要 Node 任务后再结束）。
+2. **关掉可能锁定文件的程序**：暂时退出 Cursor/VS Code 再装（或至少关掉所有指向该仓库的终端）。
+3. **删除依赖后重装**（在项目根目录 PowerShell）：
+
+   ```powershell
+   Remove-Item -Recurse -Force .\node_modules -ErrorAction SilentlyContinue
+   Remove-Item -Force .\package-lock.json -ErrorAction SilentlyContinue
+   npm install
+   ```
+
+4. 若仍 `EBUSY`：把 **`D:\AI project\agentmarket`** 加入 **Windows 安全中心 → 病毒和威胁防护 → 管理设置 → 排除项**，或对 `node_modules` 关闭实时扫描后再执行第 3 步。
+5. 极端情况：注销或重启后再删除 `node_modules` 并重装。
+
+`EBUSY` 与 `EBADENGINE` 是两件事：前者是 **文件锁**，后者是 **Node 版本偏旧**；两者可同时处理。
 
 浏览器访问 `http://localhost:3000`。首次访问会通过 `/api/session/init` 写入匿名会话 Cookie（`gm_uid`），并在数据库创建对应用户。
 
