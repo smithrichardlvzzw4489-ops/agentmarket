@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingStatus {
+  DRAFT
+  LIVE
+  ARCHIVED
+}
+
+enum DeliveryFormat {
+  OPENCLAW_BUNDLE
+  MCP_SERVER
+  PROMPT_PACK
+  WEBHOOK_API
+  HYBRID
+}
+
+enum OrderStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  handle    String   @unique
+  createdAt DateTime @default(now())
+
+  listings AgentListing[] @relation("SellerListings")
+  buys     Order[]        @relation("BuyerOrders")
+  sells    Order[]        @relation("SellerOrders")
+}
+
+model AgentListing {
+  id                    String          @id @default(cuid())
+  sellerId              String
+  seller                User            @relation("SellerListings", fields: [sellerId], references: [id], onDelete: Cascade)
+  slug                  String          @unique
+  title                 String
+  tagline               String
+  description           String
+  capabilityTagsJson    String
+  deliveryFormat        DeliveryFormat
+  trainingEffortSummary String?
+  priceMinor            Int
+  currency              String          @default("USD")
+  status                ListingStatus   @default(DRAFT)
+  instantDeliverMd      String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  orders Order[]
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  listingId     String
+  listing       AgentListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId       String
+  buyer         User         @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId      String
+  seller        User         @relation("SellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
+  amountMinor   Int
+  currency      String       @default("USD")
+  status        OrderStatus  @default(PENDING)
+  fulfillmentMd String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([listingId])
+}
