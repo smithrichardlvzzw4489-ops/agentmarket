@@ -30,7 +30,17 @@ npm run dev
 
 1. **停掉本项目相关进程**：关掉正在跑的开发服务器、Prisma Studio；在任务管理器中结束占用该目录的 `Node.js`（确认没有其它重要 Node 任务后再结束）。
 2. **关掉可能锁定文件的程序**：暂时退出 Cursor/VS Code 再装（或至少关掉所有指向该仓库的终端）。
-3. **删除依赖后重装**（在项目根目录 PowerShell）：
+3. **删除依赖后重装**（在项目根目录执行；**命令提示符 cmd** 与 **PowerShell** 命令不同，不要混用）：
+
+   **命令提示符（cmd.exe）**：
+
+   ```bat
+   rmdir /s /q node_modules
+   del /f /q package-lock.json
+   npm install
+   ```
+
+   **PowerShell**（开始菜单搜「PowerShell」打开，或在 Cursor 里把终端默认 shell 设为 PowerShell）：
 
    ```powershell
    Remove-Item -Recurse -Force .\node_modules -ErrorAction SilentlyContinue
