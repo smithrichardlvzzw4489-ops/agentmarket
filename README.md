@@ -48,8 +48,14 @@ npm run dev
    npm install
    ```
 
-4. 若仍 `EBUSY`：把 **`D:\AI project\agentmarket`** 加入 **Windows 安全中心 → 病毒和威胁防护 → 管理设置 → 排除项**，或对 `node_modules` 关闭实时扫描后再执行第 3 步。
-5. 极端情况：注销或重启后再删除 `node_modules` 并重装。
+4. 若 **`rmdir` 提示「另一个程序正在使用此文件」**（常见于 `node_modules\@prisma\engines`）：
+   - 打开 **任务管理器** →「详细信息」，结束仍在本机运行的 **`node.exe`**（注意：会关掉所有依赖 Node 的程序，请先保存其它工作）。
+   - **完全退出 Cursor / VS Code**（不只是关终端），再重试上面的 `rmdir`。
+   - 或在本仓库根目录双击运行（会提示确认）：`scripts\windows-kill-node-then-clean.cmd` —— 脚本内会执行 `taskkill /F /IM node.exe`，等待 2 秒后再删 `node_modules`。
+5. 若仍 `EBUSY`：把 **`D:\AI project\agentmarket`** 加入 **Windows 安全中心 → 病毒和威胁防护 → 管理设置 → 排除项**，或对 `node_modules` 关闭实时扫描后再执行第 3 步。
+6. 极端情况：**重启电脑**后再删 `node_modules` 并执行 `npm install`。
+
+**说明**：若从未成功完成过 `npm install`，根目录可能没有 `package-lock.json`，`del` 提示找不到属于正常情况，可忽略。
 
 `EBUSY` 与 `EBADENGINE` 是两件事：前者是 **文件锁**，后者是 **Node 版本偏旧**；两者可同时处理。
 
